@@ -51,7 +51,7 @@ def isomap(data, k_dimension, k_neighbor=7):
 
 def floyd(graph):
     """
-    Compute shortest distances between each pairs of point in graph with O(n^3) complexity
+    Compute shortest distances between each pairs of points in graph with O(n^3) complexity
     """
     n = graph.shape[0]
     for k in range(n):
@@ -65,7 +65,7 @@ def floyd(graph):
 
 def spfa(graph):
     """
-    Compute shortest distances between each pairs of point in graph with O(kVE) complexity.
+    Compute shortest distances between each pairs of points in a graph with O(kVE) complexity.
     Note that k is much less then V in a sparse graph.
     """
     n = graph.shape[0]
