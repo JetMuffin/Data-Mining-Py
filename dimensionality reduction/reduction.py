@@ -1,7 +1,7 @@
 import numpy as np
 import knn
 
-
+isomap_cache = {}
 def svd(data, k):
     [U, s, V] = np.linalg.svd(data, full_matrices=False)
     U = U[:, :k]
@@ -21,26 +21,34 @@ def pca(data, k):
     return eig_vectors.T
 
 
-def isomap(data, k_dimension, k_neighbor=7):
+def isomap(data, k_dimension, k_neighbors=4, **kwargs):
+    dataset = kwargs.get('dataset')
+
     n = data.shape[1]
     graph = np.full((n, n), float('inf'))
 
-    # construct weighted graph
-    for i in range(n):
-        point = data[:, i]
-        neighbors, distances = knn.neighbor_distances(point, data)
-        for j in range(min(k_neighbor, n)):
-            graph[neighbors[0, j], i] = graph[i, neighbors[0, j]] = distances[0, neighbors[0, j]]
+    if dataset in isomap_cache:
+        eig_vals, eig_vectors = isomap_cache.get(dataset)
+    else:
+        # construct weighted graph
+        for i in range(n):
+            point = data[:, i]
+            neighbors, distances = knn.neighbor_distances(point, data)
+            for j in range(min(k_neighbors, n)):
+                graph[neighbors[0, j], i] = graph[i, neighbors[0, j]] = distances[0, neighbors[0, j]]
 
-    # compute shortest distance between all pairs of points
-    dist = spfa(graph)
+        # compute shortest distance between all pairs of points
+        dist = spfa(graph)
 
-    # calculate the dot-product matrix
-    j = np.eye(n, n) - np.ones((n, n)) / n
-    s = -0.5 * j * dist * j
+        # calculate the dot-product matrix
+        j = np.eye(n, n) - np.ones((n, n)) / n
+        s = -0.5 * j * np.square(dist) * j
 
-    # eigen decompose s
-    eig_vals, eig_vectors = np.linalg.eig(s)
+        # eigen decompose s
+        eig_vals, eig_vectors = np.linalg.eig(s)
+        isomap_cache[dataset] = (eig_vals, eig_vectors)
+
+    # return fisrt k colmn of eigen vectors
     eig_index = np.argsort(eig_vals)[-1:-(k_dimension+1):-1]
     eig_vals = eig_vals[eig_index]
     eig_vals_diag = np.mat(np.diag(eig_vals))

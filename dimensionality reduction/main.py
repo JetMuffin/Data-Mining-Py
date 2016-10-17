@@ -9,13 +9,21 @@ def read_data(file):
         return np.mat(data[:, :-1]).T, np.mat(data[:, -1]).T
 
 
-def reduce(reduction_method, train_data, test_data, k_dimension=-1):
+def reduce(reduction_method, train_data, test_data, k_dimension=-1, **kwargs):
+    train_input = kwargs.get("dataset", "")
+
     if k_dimension > 0:
         if reduction_method.__name__ == "isomap":
             train_data_length = train_data.shape[1]
             merge_data = np.column_stack((train_data, test_data))
 
-            reduction_data = reduction_method(merge_data, k_dimension)
+            # k_neighbors=15 return the best accuracy for small data
+            # k_neighbors
+            if train_data_length < 1000:
+                reduction_data = reduction_method(merge_data, k_dimension, k_neighbors=11, dataset=train_input)
+            else:
+                reduction_data = reduction_method(merge_data, k_dimension, k_neighbors=7, dataset=train_input)
+
             train_data = reduction_data[:, :train_data_length]
             test_data = reduction_data[:, train_data_length:]
         else:
@@ -29,7 +37,7 @@ def reduce(reduction_method, train_data, test_data, k_dimension=-1):
 def predict(reduction_method, train_features, train_labels, test_features, test_labels, k_dimension, **kwargs):
     train_input = kwargs.get("dataset", "")
 
-    train_features, test_features = reduce(reduction_method, train_features, test_features, k_dimension)
+    train_features, test_features = reduce(reduction_method, train_features, test_features, k_dimension, dataset=train_input)
     test_feature_length = test_features.shape[1]
 
     true_count = 0
@@ -47,8 +55,8 @@ def main():
     for reduction_method in [reduction.pca, reduction.svd, reduction.isomap]:
         for train_input, test_input in [
                 ("train/sonar-train.txt", "test/sonar-test.txt"),
-                ("train/splice-train.txt", "test/splice-test.txt")]:
-
+                ("train/splice-train.txt", "test/splice-test.txt"),
+            ]:
             train_features, train_labels = read_data(train_input)
             test_features, test_labels = read_data(test_input)
             dataset = train_input.split('/')[-1]
