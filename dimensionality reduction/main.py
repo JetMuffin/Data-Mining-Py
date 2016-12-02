@@ -47,7 +47,7 @@ def predict(reduction_method, train_features, train_labels, test_features, test_
             true_count += 1
     accuracy = float(true_count) / float(test_feature_length)
 
-    print "method={}, input={}, k={}: {} ({}/{})".format(reduction_method.__name__, train_input, k_dimension,
+    print "method={}, data={}, k={}: {} ({}/{})".format(reduction_method.__name__, train_input, k_dimension,
                                                          accuracy, true_count, test_feature_length)
 
 

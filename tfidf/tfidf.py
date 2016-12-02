@@ -26,7 +26,7 @@ class Context(object):
         self.terms_with_id = {}
 
     def tfidf(self, input):
-        # Walk through input directory and get all input documents
+        # Walk through data directory and get all data documents
         for dir in os.listdir(input):
             for file in os.listdir(os.path.join(input, dir)):
                 self.tasks.append((dir, file, os.path.join(os.path.join(input, dir), file)))
@@ -186,7 +186,7 @@ def read_stopwords(path):
 
 def main():
     parser = OptionParser()
-    parser.add_option("-i", "--input", dest="input", default="data", help="input directory, `./data` by default")
+    parser.add_option("-i", "--data", dest="data", default="data", help="data directory, `./data` by default")
     parser.add_option("-o", "--output", dest="output", default="result.txt", help="output path, `./result.txt` by default")
     parser.add_option("-c", "--category", dest="category", default=None, help="which category to print, all by default")
 
