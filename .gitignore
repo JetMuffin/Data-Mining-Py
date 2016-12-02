@@ -2,3 +2,4 @@ train
 test
 *.pyc
 .idea
+data
